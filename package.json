@@ -9,6 +9,7 @@
   "scripts": {
     "start": "npm run dist && node dist/index.js",
     "dist": "rm -rf dist/ && babel src -d dist",
+    "lint": "node_modules/.bin/eslint src",
     "test": "node_modules/.bin/mocha test -R spec --recursive --compilers js:babel-core/register"
   },
   "repository": {
