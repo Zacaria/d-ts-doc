@@ -7,8 +7,8 @@
     "test": "test"
   },
   "scripts": {
-    "watch": "nodemon src/index.js --exec babel-node",
-    "dist": "babel src -d dist",
+    "start": "npm run dist && node dist/index.js",
+    "dist": "rm -rf dist/ && babel src -d dist",
     "test": "node_modules/.bin/mocha test -R spec --recursive --compilers js:babel-core/register"
   },
   "repository": {
@@ -21,6 +21,21 @@
     "url": "https://github.com/Zacaria/d-ts-doc/issues"
   },
   "homepage": "https://github.com/Zacaria/d-ts-doc#readme",
+  "dependencies": {
+    "app-root-path": "^1.0.0",
+    "async": "^1.4.2",
+    "lodash": "^3.10.0",
+    "marked-toc": "^0.3.0",
+    "meta-marked": "^0.3.3",
+    "mkpath": "^0.1.0",
+    "readdirp": "^1.3.0",
+    "request": "^2.58.0",
+    "rimraf": "^2.4.1",
+    "sanitize-filename": "^1.3.0",
+    "typescript-services": "^0.1.5",
+    "uslug": "^1.0.3",
+    "winston": "^1.0.1"
+  },
   "devDependencies": {
     "babel-cli": "^6.18.0",
     "babel-preset-es2015": "^6.18.0",
@@ -28,6 +43,11 @@
     "browser-sync": "^2.18.2",
     "chai": "^3.5.0",
     "chai-http": "^3.0.0",
+    "eslint": "^3.14.1",
+    "eslint-config-airbnb": "^14.0.0",
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-jsx-a11y": "^3.0.2",
+    "eslint-plugin-react": "^6.9.0",
     "mocha": "^3.2.0",
     "nodemon": "^1.11.0"
   }
