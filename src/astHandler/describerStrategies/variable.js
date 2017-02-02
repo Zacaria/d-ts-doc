@@ -2,12 +2,12 @@ import TypeScript from 'typescript-services';
 import TypeManager from '../typeManager';
 
 export default {
-  describe: function (variable) {
+  describe(variable) {
     let description = '###';
 
-    //The MemberVariableDeclaration object encapsulates the variable declaration
+    // The MemberVariableDeclaration object encapsulates the variable declaration
     if (variable.kind() == TypeScript.SyntaxKind.MemberVariableDeclaration) {
-      //add static keyword if needed
+      // add static keyword if needed
       if (variable.modifiers.indexOf(TypeScript.PullElementFlags.Static) > -1) {
         description += ' static';
       }
@@ -17,12 +17,12 @@ export default {
 
     const varName = variable.propertyName.text();
 
-    //Extract the variable type
+    // Extract the variable type
     const varType = TypeManager.getReturnString(variable);
 
-    //var varType = variable.typeAnnotation.type;
+    // var varType = variable.typeAnnotation.type;
 
-    description += ' ' + varName + ' : ' + varType + '\n\n';
+    description += ` ${varName} : ${varType}\n\n`;
 
     return description;
   },

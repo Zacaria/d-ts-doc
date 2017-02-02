@@ -1,15 +1,15 @@
 import TypeManager from '../typeManager';
 
 export default {
-  getParameterString: function (astType) {
+  getParameterString(astType) {
     return objectToString(astType);
   },
 
-  getReturnString: function (astType) {
+  getReturnString(astType) {
     return objectToString(astType);
   },
 
-  getDescriptionString: function (astType) {
+  getDescriptionString(astType) {
     return objectToString(astType);
   },
 };
@@ -17,10 +17,10 @@ export default {
 function objectToString(object) {
   let objectTypeDescription = '{';
 
-  for (let index in object.typeMembers.members) {
+  for (const index in object.typeMembers.members) {
     const member = object.typeMembers.members[index];
-    objectTypeDescription += ' ' + TypeManager.getParameterString(member, true);
-    objectTypeDescription += ': ' + TypeManager.getReturnString(member);
+    objectTypeDescription += ` ${TypeManager.getParameterString(member, true)}`;
+    objectTypeDescription += `: ${TypeManager.getReturnString(member)}`;
     if (index != object.typeMembers.members.length - 1) objectTypeDescription += ', ';
   }
 

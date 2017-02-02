@@ -1,14 +1,14 @@
 export default {
-  describe: function (enuM) {
+  describe(enuM) {
     const enumElements = enuM.enumElements.members;
 
     let enumTable = 'Key | Value\n' +
       '---|---\n';
 
-    for (let index in enumElements) {
+    for (const index in enumElements) {
       const element = enumElements[index];
 
-      enumTable += element.propertyName.text() + ' | ' + element.equalsValueClause.value._text + '\n';
+      enumTable += `${element.propertyName.text()} | ${element.equalsValueClause.value._text}\n`;
     }
 
     return enumTable;

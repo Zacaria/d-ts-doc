@@ -1,15 +1,15 @@
 import TypeManager from '../typeManager';
 
 export default {
-  getParameterString: function (astType) {
+  getParameterString(astType) {
     return functionToString(astType);
   },
 
-  getReturnString: function (astType) {
+  getReturnString(astType) {
     return functionToString(astType);
   },
 
-  getDescriptionString: function (astType) {
+  getDescriptionString(astType) {
     return functionToString(astType);
   },
 };
@@ -20,7 +20,7 @@ function functionToString(functioN) {
     TypeManager.getReturnString(functioN.parameterList.parameters.parent.parent.type, true);
 
   functioN = '(';
-  for (let index in parameters) {
+  for (const index in parameters) {
     if (!parameters[index].typeAnnotation) {
       functioN += parameters[index].identifier._text; // jch updated here
     } else {

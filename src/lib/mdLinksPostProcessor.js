@@ -7,72 +7,74 @@ import path from 'path';
 import async from 'async';
 import * as fsHandler from './fsHandler';
 
-export const getNewFilesName = function(msg, cb) {
+
+function applyRegexp(msg, cb) {
+  const classeNames = msg.files;
+  let newData = msg.flash.readData;
+
+  // save metas
+  const beginMetasToken = '---';
+  const endMetasToken = '\n---';
+  const endOfMetasIndex = newData.indexOf(endMetasToken, newData.indexOf(beginMetasToken))
+    + endMetasToken.length;
+  let oldMetas = newData.substring(0, endOfMetasIndex);
+  const defaultMetas = '---\nTAGS:\n---\n';
+  if (!oldMetas) oldMetas = defaultMetas;
+
+  // delete metas from data before adding links
+  newData = newData.substring(endOfMetasIndex);
+
+  async.each(
+    classeNames,
+    (className, endIteration) => {
+      const surroundbyLink = new RegExp(`\\b${path.basename(className, '.md')}\\b`, 'gm');
+      newData = newData.replace(surroundbyLink, `[$&](/classes/${msg.file.version}/$&)`);
+      endIteration();
+    }, (err) => {
+      msg.newData = oldMetas + newData;
+      cb(err, msg);
+    },
+  );
+}
+
+export const getNewFilesName = (msg, cb) => {
   fsHandler.readdir(msg, cb);
 };
 
-export const addLinks = function(msg, cb) {
-  var classeNames = msg.files;
-  var dirPath = path.join(msg.file.classesLocation, msg.file.version);
+export const addLinks = (msg, cb) => {
+  const classeNames = msg.files;
+  const dirPath = path.join(msg.file.classesLocation, msg.file.version);
 
   async.eachSeries(
     classeNames,
-    function(className, endIteration) {
+    (className, endIteration) => {
       async.waterfall([
-          async.constant(msg),
-          function(msg, cb) {
-            msg.flash = {
-              path: path.join(dirPath, className)
-            };
-            cb(null, msg);
-          },
-          fsHandler.readFile,
-          applyRegexp,
-          function(msg, cb) {
-            msg.flash = {
-              dataToWrite: msg.newData,
-              filePath: path.join(dirPath, className)
-            };
-            cb(null, msg);
-          },
-          fsHandler.writeFile
-        ],
-        function(err, msg) {
+        async.constant(msg),
+        (msg, cb) => {
+          msg.flash = {
+            path: path.join(dirPath, className),
+          };
+          cb(null, msg);
+        },
+        fsHandler.readFile,
+        applyRegexp,
+        (msg, cb) => {
+          msg.flash = {
+            dataToWrite: msg.newData,
+            filePath: path.join(dirPath, className),
+          };
+          cb(null, msg);
+        },
+        fsHandler.writeFile,
+      ],
+        (err) => {
           if (err) console.log('Adding links failed for : ', className, '\nWith error :', err);
           else console.log('Adding links succeed for :', className);
 
           endIteration();
         });
-    }, function(err) {
+    }, (err) => {
       cb(err, msg);
-    }
+    },
   );
 };
-
-function applyRegexp(msg, cb) {
-  var classeNames = msg.files;
-  var newData = msg.flash.readData;
-
-  //save metas
-  var beginMetasToken = '---';
-  var endMetasToken = '\n---';
-  var endOfMetasIndex = newData.indexOf(endMetasToken, newData.indexOf(beginMetasToken)) + endMetasToken.length;
-  var oldMetas = newData.substring(0, endOfMetasIndex);
-  var defaultMetas = '---\nTAGS:\n---\n';
-  if (!oldMetas) oldMetas = defaultMetas;
-
-  //delete metas from data before adding links
-  newData = newData.substring(endOfMetasIndex);
-
-  async.each(
-    classeNames,
-    function(className, endIteration) {
-      var surroundbyLink = new RegExp('\\b' + path.basename(className, '.md') + '\\b', 'gm');
-      newData = newData.replace(surroundbyLink, '[$&](/classes/' + msg.file.version + '/$&)');
-      endIteration();
-    }, function(err) {
-      msg.newData = oldMetas + newData;
-      cb(err, msg);
-    }
-  )
-}

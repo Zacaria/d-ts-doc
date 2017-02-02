@@ -1,13 +1,13 @@
 export default {
-  getParameterString: function (astType) {
+  getParameterString(astType) {
     return astType._text;
   },
 
-  getReturnString: function (astType) {
+  getReturnString(astType) {
     return astType._text;
   },
 
-  getDescriptionString: function (astType) {
+  getDescriptionString(astType) {
     return astType._text;
   },
 };

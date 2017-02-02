@@ -1,21 +1,21 @@
 import TypeManager from '../typeManager';
 
 export default {
-  getParameterString: function (astType) {
+  getParameterString(astType) {
     astType = TypeManager.getParameterString(astType.type, true);
     astType += '[]';
 
     return astType;
   },
 
-  getReturnString: function (astType) {
+  getReturnString(astType) {
     astType = TypeManager.getReturnString(astType.type, true);
     astType += '[]';
 
     return astType;
   },
 
-  getDescriptionString: function (astType) {
+  getDescriptionString(astType) {
     astType = TypeManager.getReturnString(astType.type, true);
     astType += '[]';
 

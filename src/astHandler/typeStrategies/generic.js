@@ -1,15 +1,15 @@
 import TypeManager from '../typeManager';
 
 export default {
-  getParameterString: function (astType) {
+  getParameterString(astType) {
     return genericToString(astType);
   },
 
-  getReturnString: function (astType) {
+  getReturnString(astType) {
     return genericToString(astType);
   },
 
-  getDescriptionString: function (astType) {
+  getDescriptionString(astType) {
     return genericToString(astType);
   },
 };
@@ -20,7 +20,7 @@ function genericToString(generic) {
   generic = TypeManager.getReturnString(generic.name, true);
 
   generic += '&lt;';
-  for (let index in argumentList) {
+  for (const index in argumentList) {
     generic += TypeManager.getParameterString(argumentList[index], true);
     if (index < argumentList.length - 1) {
       generic += ', ';

@@ -3,10 +3,10 @@
  */
 
 export const file = {
-  //Folder target for the new classes
+  // Folder target for the new classes
   classesLocation: 'content/classes/',
 
-  //Folder path containing the typescript description file
+  // Folder path containing the typescript description file
   location: './src/sources/',
 
   /**
@@ -21,9 +21,9 @@ export const file = {
    * This must match a directory name in the classesLocation
    */
   previousVersion: '2.4',
-  init: function () {
-    this.name = 'babylon.' + this.version + '.d.ts';
-    this.sourceFile = this.classesLocation + this.version + '/' + this.name;
+  init() {
+    this.name = `babylon.${this.version}.d.ts`;
+    this.sourceFile = `${this.classesLocation + this.version}/${this.name}`;
     delete this.init;
     return this;
   },

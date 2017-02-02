@@ -1,15 +1,15 @@
 import TypeManager from '../typeManager';
 
 export default {
-  getParameterString: function (astType) {
+  getParameterString(astType) {
     return propertyToString(astType);
   },
 
-  getReturnString: function (astType) {
+  getReturnString(astType) {
     return propertyToString(astType);
   },
 
-  getDescriptionString: function (astType) {
+  getDescriptionString(astType) {
     return propertyToString(astType);
   },
 };

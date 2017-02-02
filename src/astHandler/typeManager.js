@@ -32,10 +32,8 @@ typeManager.setAstType = function (ast, alreadyType) {
   let astType;
   if (!ast.typeAnnotation) {
     astType = ast;
-  } else {
-    if (!alreadyType) astType = ast.typeAnnotation.type;
-    else astType = ast;
-  }
+  } else if (!alreadyType) astType = ast.typeAnnotation.type;
+  else astType = ast;
 
   if (ast.propertyName) {
     console.log('Current property : ', ast.propertyName._text);
@@ -91,9 +89,8 @@ typeManager.getReturnString = function (ast, alreadyType) {
   this.setAstType(ast, alreadyType);
   if (alreadyType || !ast.typeAnnotation) {
     return this.typeManager.getReturnString(ast);
-  } else {
-    return this.typeManager.getReturnString(ast.typeAnnotation.type);
   }
+  return this.typeManager.getReturnString(ast.typeAnnotation.type);
 };
 
 typeManager.getDescriptionString = function (ast, description, alreadyType) {
@@ -101,7 +98,6 @@ typeManager.getDescriptionString = function (ast, description, alreadyType) {
   return (alreadyType || !ast.typeAnnotation)
     ? this.typeManager.getDescriptionString(ast, description)
     : this.typeManager.getDescriptionString(ast.typeAnnotation.type, description);
-
 };
 
 export default typeManager;

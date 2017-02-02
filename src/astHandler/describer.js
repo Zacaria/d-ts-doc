@@ -5,29 +5,34 @@
 
 import TypeManager from './typeManager';
 
+function stripMdLinks(mdData) {
+  const getMdLinks = /\[(\w+)\]\(.*?\)/g;
+  return mdData ? mdData.replace(getMdLinks, '$1') : '';
+}
+
 const Describer = {
   fileName: '',
   oldDescription: '',
   describer: '',
 };
 
-Describer.setFileName = function (fileName) {
+Describer.setFileName = function setFileName(fileName) {
   this.fileName = fileName;
   return this;
 };
 
-Describer.setOldDescription = function (data) {
-  //Before saving it, we need to get rid of links in md
+Describer.setOldDescription = function setOldDescription(data) {
+  // Before saving it, we need to get rid of links in md
   this.oldDescription = stripMdLinks(data);
   return this;
 };
 
-Describer.setDescriber = function (describer) {
+Describer.setDescriber = function setDescriber(describer) {
   this.describer = describer;
   return this;
 };
 
-Describer.describe = function (astElement, withParams) {
+Describer.describe = function describe(astElement, withParams) {
   const astFormatted = Describer.describer.describe(astElement);
   const astComments = this.getComments(astElement, astFormatted, withParams);
 
@@ -39,8 +44,7 @@ Describer.describe = function (astElement, withParams) {
  * @param withParams boolean tells if the given object is commented with parameters or not
  * @return string
  */
-Describer.getComments = function (astElement, astFormatted, withParams) {
-
+Describer.getComments = function getComments(astElement, astFormatted, withParams) {
   const rawComments = astElement.preComments();
   const stripNewLines = /^\s+|\s+$/g;
 
@@ -48,13 +52,13 @@ Describer.getComments = function (astElement, astFormatted, withParams) {
   let comments = '';
   let typeOfSearch = '';
 
-  //strip new lines before and after the string
+  // strip new lines before and after the string
   astFormatted = astFormatted.replace(stripNewLines, '');
 
-  //strip spaces around the string
+  // strip spaces around the string
   astFormatted = astFormatted.trim();
 
-  //Espace specials chars, so that this string can be inserted in a regexp
+  // Espace specials chars, so that this string can be inserted in a regexp
   astFormatted = astFormatted.replace(/([()[{*+.$^\\|?])/g, '\\$1');
 
   const hasOldData = !!this.oldDescription;
@@ -66,33 +70,31 @@ Describer.getComments = function (astElement, astFormatted, withParams) {
     searchString = astFormatted;
 
     // If it's the class description
-    if (astFormatted.indexOf('## Description') != -1) {
+    if (astFormatted.indexOf('## Description') !== -1) {
       typeOfSearch = 'class';
       searchString = '## Description';
-    } else if (astFormatted.indexOf('&rarr;') != -1) {
-
+    } else if (astFormatted.indexOf('&rarr;') !== -1) {
       // Else if it's a function
       typeOfSearch = 'function';
       searchString = astFormatted.substring(0, astFormatted.indexOf('&') + 6);
-    } else if (astFormatted.indexOf(':') != -1) {
-
+    } else if (astFormatted.indexOf(':') !== -1) {
       // Else if it's a member
       typeOfSearch = 'member';
       searchString = astFormatted.substring(0, astFormatted.indexOf(':'));
     }
 
-    getOldLine = new RegExp(searchString + '\\s*((.*\\s*)*?)(?=^#|$)', 'gm');
-    getOldLineWithoutSpace = new RegExp(searchString
-        .replace(' ', '') + '\\s*((.*\\s*)*?)(?=^#|$)', 'gm');
+    getOldLine = new RegExp(`${searchString}\\s*((.*\\s*)*?)(?=^#|$)`, 'gm');
+    getOldLineWithoutSpace = new RegExp(`${searchString
+        .replace(' ', '')}\\s*((.*\\s*)*?)(?=^#|$)`, 'gm');
     getOldParams = /(^([^\n\r]*)\|([^\n\r]*)$)/gm;
   }
 
   let oldLineReged = '';
   let oldLineDescription = '';
 
-  //Serialize the array of comments
-  for (let i in rawComments) {
-    serializedComments += rawComments[i].fullText() + '\n';
+  // Serialize the array of comments
+  for (const i in rawComments) {
+    serializedComments += `${rawComments[i].fullText()}\n`;
   }
 
   if (!withParams) {
@@ -111,15 +113,13 @@ Describer.getComments = function (astElement, astFormatted, withParams) {
        take out the first asterisk and space, now looks like
        'Description text'
        */
-      comments += line[0].slice(2) + '\n\n';
+      comments += `${line[0].slice(2)}\n\n`;
 
       line = textRegexp.exec(serializedComments);
-
     }
 
     // TODO : Refactor with the other
     if (!comments && hasOldData) {
-
       oldLineReged = getOldLine.exec(this.oldDescription);
       if (!oldLineReged) {
         oldLineReged = getOldLineWithoutSpace.exec(this.oldDescription);
@@ -128,11 +128,11 @@ Describer.getComments = function (astElement, astFormatted, withParams) {
       if (oldLineReged) {
         oldLineDescription = oldLineReged[1];
 
-        if (typeOfSearch == 'class') {
+        if (typeOfSearch === 'class') {
           oldLineDescription = oldLineDescription.substring(oldLineDescription.indexOf('\n') + 1);
           oldLineDescription = oldLineDescription.substring(oldLineDescription.indexOf('\n') + 1);
           comments += oldLineDescription;
-        } else if (typeOfSearch == 'member') {
+        } else if (typeOfSearch === 'member') {
           comments += oldLineDescription.substring(oldLineDescription.indexOf('\n') + 2);
         } else {
           comments += oldLineDescription;
@@ -140,7 +140,7 @@ Describer.getComments = function (astElement, astFormatted, withParams) {
       }
     }
 
-    comments = comments.replace(stripNewLines, '') + '\n\n';
+    comments = `${comments.replace(stripNewLines, '')}\n\n`;
   } else {
     const notParamRegexp = /(?:^\s*\*\s)(?!\@param)(.*)/gm;
     const funParameters = astElement.callSignature.parameterList.parameters.members;
@@ -148,7 +148,7 @@ Describer.getComments = function (astElement, astFormatted, withParams) {
     let line = notParamRegexp.exec(serializedComments);
 
     while (line != null) {
-      comments += line[1] + '\n\n';
+      comments += `${line[1]}\n\n`;
       line = notParamRegexp.exec(serializedComments);
     }
 
@@ -162,7 +162,7 @@ Describer.getComments = function (astElement, astFormatted, withParams) {
       if (oldLineReged) {
         oldLineDescription = oldLineReged[1];
 
-        if (typeOfSearch == 'function') {
+        if (typeOfSearch === 'function') {
           comments += oldLineDescription.substring(oldLineDescription.indexOf('\n') + 2);
         } else {
           comments += oldLineDescription;
@@ -170,13 +170,13 @@ Describer.getComments = function (astElement, astFormatted, withParams) {
       }
     }
 
-    comments = comments.replace(stripNewLines, '') + '\n';
+    comments = `${comments.replace(stripNewLines, '')}\n`;
 
     if (hasOldData && funParameters.length > 0) {
       const oldLineIndex = getOldLine.lastIndex;
       const oldTemp = this.oldDescription.substr(oldLineIndex);
 
-      //We need to execute it twice, before, in order to get rid of results we don't want
+      // We need to execute it twice, before, in order to get rid of results we don't want
       getOldParams.exec(oldTemp);
       getOldParams.exec(oldTemp);
 
@@ -200,7 +200,7 @@ Describer.getComments = function (astElement, astFormatted, withParams) {
       }
     }
 
-    let parametersHeader = '#### Parameters\n' +
+    const parametersHeader = '#### Parameters\n' +
       ' | Name | Type | Description\n' +
       '---|---|---|---\n';
 
@@ -215,7 +215,7 @@ Describer.getComments = function (astElement, astFormatted, withParams) {
      * In the arrays of ##Params
      */
 
-    let paramDescLine = [];
+    const paramDescLine = [];
     let searchBreak = parametersDescription.search(/\n/);
 
     while (searchBreak != -1) {
@@ -232,19 +232,19 @@ Describer.getComments = function (astElement, astFormatted, withParams) {
     }
 
     parametersDescription = '';
-    for (let index in paramDescLine) {
+    for (const index in paramDescLine) {
       // If there was description
       if (paramOldComments && paramOldComments[index]) {
         // Merge the comments with the new description
-        parametersDescription += paramDescLine[index] + paramOldComments[index] + '\n';
+        parametersDescription += `${paramDescLine[index] + paramOldComments[index]}\n`;
       } else {
         // Just add the new one
-        parametersDescription += paramDescLine[index] + '\n';
+        parametersDescription += `${paramDescLine[index]}\n`;
       }
     }
 
     if (funParameters.length > 0) {
-      comments += '\n' + parametersHeader + parametersDescription;
+      comments += `\n${parametersHeader}${parametersDescription}`;
     }
   }
 
@@ -252,7 +252,6 @@ Describer.getComments = function (astElement, astFormatted, withParams) {
 };
 
 Describer.getMetas = function () {
-
   // This retrieve all the metas from first '---' to second '---'
   // (searched with '---' and '##' because don't work with newline character
   const beginMetasToken = '---';
@@ -269,12 +268,7 @@ Describer.getMetas = function () {
 
   const defaultMetas = '---\nTAGS:\n---\n';
 
-  return (oldMetas ? oldMetas : defaultMetas);
+  return (oldMetas || defaultMetas);
 };
-
-function stripMdLinks(mdData) {
-  const getMdLinks = /\[(\w+)\]\(.*?\)/g;
-  return mdData ? mdData.replace(getMdLinks, '$1') : '';
-}
 
 export default Describer;

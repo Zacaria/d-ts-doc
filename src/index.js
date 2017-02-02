@@ -10,66 +10,84 @@ import * as dtsParser from './dtsParser';
 import * as mdLinksPostProcessor from './lib/mdLinksPostProcessor';
 import { file } from './config';
 
-const msg = {
-  file: file,
+const initMsg = {
+  file,
 
-  //flash is a temporary cache memory
+  // flash is a temporary cache memory
   flash: {},
 };
 
-//TODO delete dir when error is raised
-async.waterfall([
-  async.constant(msg),
-  function setNewDirpath(msg, cb) {
-    const newDirPath = path.join(msg.file.classesLocation, msg.file.version);
-    msg.flash = {
-      path: newDirPath,
-    };
-    cb(null, msg);
-  },
-  fsHandler.exists,
-
-  //fsHandler.deleteDir,
-  fsHandler.createDir,
-  function setSourceFilePath(msg, cb) {
-    const newFilePath = path.join(msg.file.location, msg.file.name);
-    msg.flash = {
-      path: newFilePath,
-    };
-    cb(null, msg);
-  },
-  fsHandler.readFile,
-  function setSourceFileData(msg, cb) {
-    msg.sourceFileData = msg.flash.readData;
-    cb(null, msg);
-  },
-  dtsParser.buildTree,
-  function setSourceTree(msg, tree, cb) {
-    msg.flash = {
-      ast: tree,
-    };
-    cb(null, msg);
-  },
-  dtsParser.visitTree,
-  resetFlash,
-  function setnewClassesDirpath(msg, cb) {
-    const newDirPath = path.join(msg.file.classesLocation, msg.file.version);
-    msg.flash = {
-      path: newDirPath,
-    };
-    cb(null, msg);
-  },
-  mdLinksPostProcessor.getNewFilesName,
-  mdLinksPostProcessor.addLinks,
-], outputConsole);
-
-//Function executed once the waterfall has finished
-function outputConsole(err, data) {
+// Function executed once the waterfall has finished
+function outputConsole(err) {
   if (err) console.log('Unexpected problem : ', err);
   else console.log('Everything was fine ');
 }
 
 function resetFlash(msg, cb) {
-  msg.flash = {};
-  cb(null, msg);
+  const cleanMsg = {
+    ...msg,
+    flash: {},
+  };
+  cb(null, cleanMsg);
 }
+
+// TODO delete dir when error is raised
+async.waterfall([
+  async.constant(initMsg),
+  function setNewDirpath(msg, cb) {
+    const newDirPath = path.join(msg.file.classesLocation, msg.file.version);
+    const newMsg = {
+      ...msg,
+      flash: {
+        path: newDirPath,
+      },
+    };
+    cb(null, newMsg);
+  },
+  fsHandler.exists,
+
+  // fsHandler.deleteDir,
+  fsHandler.createDir,
+  function setSourceFilePath(msg, cb) {
+    const newFilePath = path.join(msg.file.location, msg.file.name);
+    const newMsg = {
+      ...msg,
+      flash: {
+        path: newFilePath,
+      },
+    };
+    cb(null, newMsg);
+  },
+  fsHandler.readFile,
+  function setSourceFileData(msg, cb) {
+    const newMsg = {
+      ...msg,
+      sourceFileData: msg.flash.readData,
+    };
+    cb(null, newMsg);
+  },
+  dtsParser.buildTree,
+  function setSourceTree(msg, tree, cb) {
+    const newMsg = {
+      ...msg,
+      flash:{
+        ast: tree,
+      },
+    };
+    cb(null, newMsg);
+  },
+  dtsParser.visitTree,
+  resetFlash,
+  function setnewClassesDirpath(msg, cb) {
+    const newDirPath = path.join(msg.file.classesLocation, msg.file.version);
+    const newMsg = {
+      ...msg,
+      flash: {
+        path: newDirPath,
+      },
+    };
+    cb(null, newMsg);
+  },
+  mdLinksPostProcessor.getNewFilesName,
+  mdLinksPostProcessor.addLinks,
+], outputConsole);

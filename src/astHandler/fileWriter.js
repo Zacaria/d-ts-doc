@@ -29,14 +29,14 @@ FileWriter.prototype.write = function (msg, mainCallback) {
     this.writer.write,
     function (msg, dataToWrite, cb) {
       msg.flash = {
-        dataToWrite: dataToWrite,
-        filePath: path.join(msg.file.classesLocation, msg.file.version, msg.astName) + '.md',
+        dataToWrite,
+        filePath: `${path.join(msg.file.classesLocation, msg.file.version, msg.astName)}.md`,
       };
       cb(null, msg);
     },
 
     this.createMd,
-  ], function (err, msg) {
+  ], (err, msg) => {
     if (err) console.log('Error : ', err);
     else {
       console.log('Done with ', path.basename(msg.astName));
@@ -68,7 +68,7 @@ FileWriter.prototype.appendImplementation = function (filePath, implementation, 
 
 FileWriter.prototype.checkOldVersion = function (msg, cb) {
   msg.flash = {
-    path: path.join(msg.file.classesLocation, msg.file.previousVersion, msg.astName + '.md'),
+    path: path.join(msg.file.classesLocation, msg.file.previousVersion, `${msg.astName}.md`),
   };
   console.log('check old version of ', msg.astName);
 
@@ -84,7 +84,6 @@ FileWriter.prototype.getOldVersion = function (msg, cb) {
     msg.oldFileData = '';
     cb(null, msg);
   }
-
 };
 
 export default FileWriter;

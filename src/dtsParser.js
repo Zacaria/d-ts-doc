@@ -16,12 +16,12 @@ import EnumWriter from './astHandler/fileWriterStrategies/enum';
  * @param text input
  * @param cb
  */
-export const buildTree = function(msg, cb) {
+export const buildTree = function (msg, cb) {
   console.log('I am the tree builder !');
 
-  //A plain array of JSON elements, including classes, enums, interfaces
-  //TODO get rid of that
-  //var elements = [];
+  // A plain array of JSON elements, including classes, enums, interfaces
+  // TODO get rid of that
+  // var elements = [];
 
   const syntaxTree = TypeScript.Parser.parse(msg.file.name,
     TypeScript.SimpleText.fromString(msg.sourceFileData),
@@ -44,12 +44,12 @@ export const buildTree = function(msg, cb) {
  * @param elements
  * @param cb callback which passes the result to the next function of the waterfall
  */
-export const visitTree = function(msg, cb) {
+export const visitTree = function (msg, cb) {
   console.log('let\'s visit this');
 
   async.eachSeries(
     msg.flash.ast.members,
-    function (item, endIteration) {
+    (item, endIteration) => {
       const me = item;
 
       if (me.kind() == TypeScript.SyntaxKind.ModuleDeclaration) {
@@ -59,7 +59,6 @@ export const visitTree = function(msg, cb) {
          */
         msg.flash.ast = md.moduleElements;
         visitTree(msg, endIteration);
-
       } else if (me.kind() == TypeScript.SyntaxKind.ClassDeclaration) {
         const cd = me;
 
@@ -74,7 +73,6 @@ export const visitTree = function(msg, cb) {
           const classWriter = new FileWriter();
           classWriter.setWriter(ClassWriter).write(msg, endIteration);
         }
-
       } else if (me.kind() == TypeScript.SyntaxKind.EnumDeclaration) {
         const ed = me;
         /**
@@ -87,8 +85,8 @@ export const visitTree = function(msg, cb) {
         endIteration();
       }
     },
-    function (err) {
+    (err) => {
       cb(err, msg);
-    }
+    },
   );
 };

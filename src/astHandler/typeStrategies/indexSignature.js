@@ -1,15 +1,15 @@
 import TypeManager from '../typeManager';
 
 export default {
-  getParameterString: function (astType) {
+  getParameterString(astType) {
     return indexToString(astType);
   },
 
-  getReturnString: function (astType) {
+  getReturnString(astType) {
     return indexToString(astType);
   },
 
-  getDescriptionString: function (astType) {
+  getDescriptionString(astType) {
     return indexToString(astType);
   },
 };
@@ -19,7 +19,7 @@ function indexToString(index) {
 
   indexString += TypeManager.getParameterString(index.parameter.identifier, true);
 
-  indexString += ': ' + TypeManager.getReturnString(index.parameter);
+  indexString += `: ${TypeManager.getReturnString(index.parameter)}`;
 
   indexString += ']';
   console.log('found index sign');
