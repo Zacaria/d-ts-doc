@@ -47,19 +47,17 @@ Describer.describe = function describe(astElement, withParams) {
 Describer.getComments = function getComments(astElement, astFormatted, withParams) {
   const rawComments = astElement.preComments();
   const stripNewLines = /^\s+|\s+$/g;
+  const astFormattedString = astFormatted
+    // strip new lines before and after the string
+    .replace(stripNewLines, '')
+    // strip spaces around the string
+    .trim()
+    // Escape specials chars, so that this string can be inserted in a regexp
+    .replace(/([()[{*+.$^\\|?])/g, '\\$1');
 
   let serializedComments = '';
   let comments = '';
   let typeOfSearch = '';
-
-  // strip new lines before and after the string
-  astFormatted = astFormatted.replace(stripNewLines, '');
-
-  // strip spaces around the string
-  astFormatted = astFormatted.trim();
-
-  // Espace specials chars, so that this string can be inserted in a regexp
-  astFormatted = astFormatted.replace(/([()[{*+.$^\\|?])/g, '\\$1');
 
   const hasOldData = !!this.oldDescription;
   let searchString;
@@ -67,25 +65,25 @@ Describer.getComments = function getComments(astElement, astFormatted, withParam
   let getOldLineWithoutSpace;
   let getOldParams;
   if (hasOldData) {
-    searchString = astFormatted;
+    searchString = astFormattedString;
 
     // If it's the class description
-    if (astFormatted.indexOf('## Description') !== -1) {
+    if (astFormattedString.indexOf('## Description') !== -1) {
       typeOfSearch = 'class';
       searchString = '## Description';
-    } else if (astFormatted.indexOf('&rarr;') !== -1) {
+    } else if (astFormattedString.indexOf('&rarr;') !== -1) {
       // Else if it's a function
       typeOfSearch = 'function';
-      searchString = astFormatted.substring(0, astFormatted.indexOf('&') + 6);
-    } else if (astFormatted.indexOf(':') !== -1) {
+      searchString = astFormattedString.substring(0, astFormattedString.indexOf('&') + 6);
+    } else if (astFormattedString.indexOf(':') !== -1) {
       // Else if it's a member
       typeOfSearch = 'member';
-      searchString = astFormatted.substring(0, astFormatted.indexOf(':'));
+      searchString = astFormattedString.substring(0, astFormattedString.indexOf(':'));
     }
 
     getOldLine = new RegExp(`${searchString}\\s*((.*\\s*)*?)(?=^#|$)`, 'gm');
     getOldLineWithoutSpace = new RegExp(`${searchString
-        .replace(' ', '')}\\s*((.*\\s*)*?)(?=^#|$)`, 'gm');
+      .replace(' ', '')}\\s*((.*\\s*)*?)(?=^#|$)`, 'gm');
     getOldParams = /(^([^\n\r]*)\|([^\n\r]*)$)/gm;
   }
 
@@ -108,7 +106,7 @@ Describer.getComments = function getComments(astElement, astFormatted, withParam
     /*
      Iterate over multilines comment
      */
-    while (line != null) {
+    while (line !== null) {
       /*
        take out the first asterisk and space, now looks like
        'Description text'
@@ -147,7 +145,7 @@ Describer.getComments = function getComments(astElement, astFormatted, withParam
 
     let line = notParamRegexp.exec(serializedComments);
 
-    while (line != null) {
+    while (line !== null) {
       comments += `${line[1]}\n\n`;
       line = notParamRegexp.exec(serializedComments);
     }
@@ -186,7 +184,7 @@ Describer.getComments = function getComments(astElement, astFormatted, withParam
        */
       var paramOldComments = [];
       let paramOldComment = getOldParams.exec(oldTemp);
-      while (paramOldComment != null) {
+      while (paramOldComment !== null) {
         const start = paramOldComment[0].indexOf('|') + 1;
         const end = paramOldComment[0]
             .substr(paramOldComment[0].indexOf('|') + 1)
@@ -218,7 +216,7 @@ Describer.getComments = function getComments(astElement, astFormatted, withParam
     const paramDescLine = [];
     let searchBreak = parametersDescription.search(/\n/);
 
-    while (searchBreak != -1) {
+    while (searchBreak !== -1) {
       const line = parametersDescription.substring(0, searchBreak);
       const start = line.indexOf('|') + 1;
       const end = line.substr(line.indexOf('|') + 1).indexOf('|') - 1 + start;
@@ -251,7 +249,7 @@ Describer.getComments = function getComments(astElement, astFormatted, withParam
   return comments;
 };
 
-Describer.getMetas = function () {
+Describer.getMetas = function getMetas() {
   // This retrieve all the metas from first '---' to second '---'
   // (searched with '---' and '##' because don't work with newline character
   const beginMetasToken = '---';

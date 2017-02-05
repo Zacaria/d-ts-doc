@@ -23,6 +23,15 @@ function outputConsole(err) {
   else console.log('Everything was fine ');
 }
 
+function patchFlashPath(newPath, msg) {
+  return {
+    ...msg,
+    flash: {
+      path: newPath,
+    },
+  };
+}
+
 function resetFlash(msg, cb) {
   const cleanMsg = {
     ...msg,
@@ -34,32 +43,20 @@ function resetFlash(msg, cb) {
 // TODO delete dir when error is raised
 async.waterfall([
   async.constant(initMsg),
-  function setNewDirpath(msg, cb) {
+  (msg, cb) => {
     const newDirPath = path.join(msg.file.classesLocation, msg.file.version);
-    const newMsg = {
-      ...msg,
-      flash: {
-        path: newDirPath,
-      },
-    };
-    cb(null, newMsg);
+    cb(null, patchFlashPath(newDirPath, msg));
   },
   fsHandler.exists,
 
   // fsHandler.deleteDir,
   fsHandler.createDir,
-  function setSourceFilePath(msg, cb) {
+  (msg, cb) => {
     const newFilePath = path.join(msg.file.location, msg.file.name);
-    const newMsg = {
-      ...msg,
-      flash: {
-        path: newFilePath,
-      },
-    };
-    cb(null, newMsg);
+    cb(null, patchFlashPath(newFilePath, msg));
   },
   fsHandler.readFile,
-  function setSourceFileData(msg, cb) {
+  (msg, cb) => {
     const newMsg = {
       ...msg,
       sourceFileData: msg.flash.readData,
@@ -67,10 +64,10 @@ async.waterfall([
     cb(null, newMsg);
   },
   dtsParser.buildTree,
-  function setSourceTree(msg, tree, cb) {
+  (msg, tree, cb) => {
     const newMsg = {
       ...msg,
-      flash:{
+      flash: {
         ast: tree,
       },
     };
@@ -78,15 +75,9 @@ async.waterfall([
   },
   dtsParser.visitTree,
   resetFlash,
-  function setnewClassesDirpath(msg, cb) {
+  (msg, cb) => {
     const newDirPath = path.join(msg.file.classesLocation, msg.file.version);
-    const newMsg = {
-      ...msg,
-      flash: {
-        path: newDirPath,
-      },
-    };
-    cb(null, newMsg);
+    cb(null, patchFlashPath(newDirPath, msg));
   },
   mdLinksPostProcessor.getNewFilesName,
   mdLinksPostProcessor.addLinks,
